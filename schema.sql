@@ -261,3 +261,47 @@ with check (
  where p.id = invoice_lines.product_id
  )
 );
+
+-- COUNTRIES (búsquedas por código)
+CREATE INDEX IF NOT EXISTS idx_countries_code ON public.countries(code);
+
+-- CATEGORIES (búsquedas por nombre)
+CREATE INDEX IF NOT EXISTS idx_categories_name ON public.categories(name);
+
+-- PRODUCTS (RLS y búsquedas frecuentes)
+CREATE INDEX IF NOT EXISTS idx_products_category_id ON public.products(category_id);
+CREATE INDEX IF NOT EXISTS idx_products_name ON public.products(name);
+CREATE INDEX IF NOT EXISTS idx_products_created_at ON public.products(created_at);
+CREATE INDEX IF NOT EXISTS idx_products_price ON public.products(unit_price);
+
+-- CUSTOMERS (RLS y búsquedas)
+CREATE INDEX IF NOT EXISTS idx_customers_country_code ON public.customers(country_code);
+CREATE INDEX IF NOT EXISTS idx_customers_email ON public.customers(email);
+CREATE INDEX IF NOT EXISTS idx_customers_name ON public.customers(name);
+CREATE INDEX IF NOT EXISTS idx_customers_created_at ON public.customers(created_at);
+
+-- INVOICES (consultas por fecha y cliente)
+CREATE INDEX IF NOT EXISTS idx_invoices_customer_id ON public.invoices(customer_id);
+CREATE INDEX IF NOT EXISTS idx_invoices_invoice_date ON public.invoices(invoice_date);
+CREATE INDEX IF NOT EXISTS idx_invoices_created_at ON public.invoices(created_at);
+CREATE INDEX IF NOT EXISTS idx_invoices_total_amount ON public.invoices(total_amount);
+
+-- INVOICE_LINES (joins frecuentes)
+CREATE INDEX IF NOT EXISTS idx_invoice_lines_invoice_id ON public.invoice_lines(invoice_id);
+CREATE INDEX IF NOT EXISTS idx_invoice_lines_product_id ON public.invoice_lines(product_id);
+CREATE INDEX IF NOT EXISTS idx_invoice_lines_unit_price ON public.invoice_lines(unit_price);
+CREATE INDEX IF NOT EXISTS idx_invoice_lines_quantity ON public.invoice_lines(quantity);
+
+-- RLS (optimización de joins)
+CREATE INDEX IF NOT EXISTS idx_user_allowed_country_user_id ON public.user_allowed_country(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_allowed_country_country_code ON public.user_allowed_country(country_code);
+CREATE INDEX IF NOT EXISTS idx_user_allowed_country_composite ON public.user_allowed_country(user_id, country_code);
+
+CREATE INDEX IF NOT EXISTS idx_user_allowed_category_user_id ON public.user_allowed_category(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_allowed_category_category_id ON public.user_allowed_category(category_id);
+CREATE INDEX IF NOT EXISTS idx_user_allowed_category_composite ON public.user_allowed_category(user_id, category_id);
+
+-- Índices compuestos para consultas avanzadas ------------!!!!!!!!!!!!!!!!!!!!!!
+CREATE INDEX IF NOT EXISTS idx_products_category_price ON public.products(category_id, unit_price);
+CREATE INDEX IF NOT EXISTS idx_invoices_customer_date ON public.invoices(customer_id, invoice_date);
+CREATE INDEX IF NOT EXISTS idx_invoice_lines_invoice_product ON public.invoice_lines(invoice_id, product_id);
