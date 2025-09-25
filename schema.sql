@@ -262,6 +262,7 @@ with check (
  )
 );
 
+<<<<<<< HEAD
 -- COUNTRIES (búsquedas por código)
 CREATE INDEX IF NOT EXISTS idx_countries_code ON public.countries(code);
 
@@ -305,3 +306,42 @@ CREATE INDEX IF NOT EXISTS idx_user_allowed_category_composite ON public.user_al
 CREATE INDEX IF NOT EXISTS idx_products_category_price ON public.products(category_id, unit_price);
 CREATE INDEX IF NOT EXISTS idx_invoices_customer_date ON public.invoices(customer_id, invoice_date);
 CREATE INDEX IF NOT EXISTS idx_invoice_lines_invoice_product ON public.invoice_lines(invoice_id, product_id);
+=======
+
+=======POBLADO=======
+
+insert into public.countries (code, name) values
+('CR', 'Costa Rica'),
+('US', 'United States'),
+('CA', 'Canada'),
+('GB', 'United Kingdom'),
+('DE', 'Germany'),
+('FR', 'France'),
+('ES', 'Spain');
+
+
+insert into public.categories (name) values
+('Electronics'),
+('Furniture'),
+('Beauty'),
+('Food'),
+('Clothing');
+
+insert into public.products (name, category_id, unit_price) values
+('Smartphone Model X', (select id from public.categories where name = 'Electronics'), 699.00),
+('Laptop Pro 15"', (select id from public.categories where name = 'Electronics'), 1299.00),
+('Wooden Dining Table', (select id from public.categories where name = 'Furniture'), 499.00),
+('Office Chair Ergo', (select id from public.categories where name = 'Furniture'), 149.50),
+('Hydrating Face Cream', (select id from public.categories where name = 'Beauty'), 29.99),
+('Organic Olive Oil 1L', (select id from public.categories where name = 'Food'), 12.75),
+('T-Shirt Classic', (select id from public.categories where name = 'Clothing'), 19.90),
+('Wireless Headphones', (select id from public.categories where name = 'Electronics'), 199.99)
+;
+
+insert into public.customers (name, email, country_code) values
+('Natalia Orozco', 'natalia.orozco@ejemplo.cr', 'CR'),
+('Isaac Villalobos', 'isaac.villalobos@ejemplo.us', 'US'),
+('Carlos Abarca', 'carlos.abarca@ejemplo.fr', 'FR'),
+('Dilan Hernandez', 'dilan.hernandezz@ejemplo.de', 'DE')
+;
+>>>>>>> 5e9638d9f14635ab742cbf13e31047c70dd06b7c
