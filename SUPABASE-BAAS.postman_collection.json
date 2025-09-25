@@ -1,0 +1,120 @@
+{
+	"info": {
+		"_postman_id": "d22f08e5-e0d6-4acb-b997-3a7c089a1b3a",
+		"name": "SUPABASE-BAAS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45423570",
+		"_collection_link": "https://nataliaorozco-277370.postman.co/workspace/Natalia-Orozco's-Workspace~a65f733e-9c66-40a6-8aad-c8ba2835df9f/collection/45423570-d22f08e5-e0d6-4acb-b997-3a7c089a1b3a?action=share&source=collection_link&creator=45423570"
+	},
+	"item": [
+		{
+			"name": "logins",
+			"item": []
+		},
+		{
+			"name": "selects",
+			"item": []
+		},
+		{
+			"name": "invoices",
+			"item": [
+				{
+					"name": "new invoice - anon",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "invoice lines - anon",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Select invoices - anon",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Select invoice products - anon",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "select invoice products - user autorizado para CR y CatId 1",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Select category - anon",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Select category - user autorizado",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "login - no autorizado",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Select country - anon",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Select country - user autorizado",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Select country - user no autorizado",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "login - autorizado",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}
