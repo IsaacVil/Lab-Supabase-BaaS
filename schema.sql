@@ -113,7 +113,37 @@ using (exists (
 customers.country_code
 ));
 
---...
+create policy "customers_by_user_country_insert"
+on public.customers for insert
+to authenticated
+with check (exists (
+ select 1 from public.user_allowed_country u
+ where u.user_id = auth.uid() and u.country_code =
+customers.country_code
+));
+
+create policy "customers_by_user_country_update"
+on public.customers for update
+to authenticated
+using (exists (
+ select 1 from public.user_allowed_country u
+ where u.user_id = auth.uid() and u.country_code =
+customers.country_code
+))
+with check (exists (
+ select 1 from public.user_allowed_country u
+ where u.user_id = auth.uid() and u.country_code =
+customers.country_code
+));
+
+create policy "customers_by_user_country_delete"
+on public.customers for delete
+to authenticated
+using (exists (
+ select 1 from public.user_allowed_country u
+ where u.user_id = auth.uid() and u.country_code =
+customers.country_code
+));
 
 --Políticas en invoices (por país del cliente)
 
@@ -128,8 +158,45 @@ using (exists (
  where c.id = invoices.customer_id
 ));
 
---...
+create policy "invoices_by_user_country_insert"
+on public.invoices for insert
+to authenticated
+with check (exists (
+ select 1
+ from public.customers c
+ join public.user_allowed_country u
+ on u.country_code = c.country_code and u.user_id = auth.uid()
+ where c.id = invoices.customer_id
+));
 
+create policy "invoices_by_user_country_update"
+on public.invoices for update
+to authenticated
+using (exists (
+ select 1
+ from public.customers c
+ join public.user_allowed_country u
+ on u.country_code = c.country_code and u.user_id = auth.uid()
+ where c.id = invoices.customer_id
+))
+with check (exists (
+ select 1
+ from public.customers c
+ join public.user_allowed_country u
+ on u.country_code = c.country_code and u.user_id = auth.uid()
+ where c.id = invoices.customer_id
+));
+
+create policy "invoices_by_user_country_delete"
+on public.invoices for delete
+to authenticated
+using (exists (
+ select 1
+ from public.customers c
+ join public.user_allowed_country u
+ on u.country_code = c.country_code and u.user_id = auth.uid()
+ where c.id = invoices.customer_id
+));
 
 --Políticas en invoice_lines (por país y categoría)
 
