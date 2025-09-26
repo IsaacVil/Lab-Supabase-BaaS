@@ -1,8 +1,8 @@
-// Vistas hechas:
+-- Vistas hechas:
 
 
 
-// ================== Sales fact ==================
+-- ================== Sales fact ==================
 CREATE OR REPLACE VIEW public.v_sales_fact
 AS
 SELECT 
@@ -27,7 +27,7 @@ GROUP BY
 
 
 
-// ================== Sales by fact ==================
+-- ================== Sales by fact ==================
 CREATE OR REPLACE VIEW public.v_sales_by_category
 AS
 SELECT 
@@ -44,7 +44,7 @@ GROUP BY cat.id, cat.name;
 
 
 
-// ================== Sales by country ==================
+-- ================== Sales by country ==================
 CREATE OR REPLACE VIEW public.v_sales_by_country
 AS
 SELECT 
@@ -64,7 +64,7 @@ ORDER BY total_sales_amount DESC;
 
 
 
-// ================== Sales top 30d ==================
+-- ================== Sales top 30d ==================
 CREATE OR REPLACE VIEW public.v_top_products_30d
 AS
 SELECT 
@@ -83,3 +83,4 @@ INNER JOIN public.invoices i ON il.invoice_id = i.id
 WHERE i.invoice_date >= CURRENT_DATE - INTERVAL '30 days'
 GROUP BY p.id, p.name, c.name
 ORDER BY total_sales_amount DESC;
+
