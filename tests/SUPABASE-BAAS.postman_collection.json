@@ -1093,7 +1093,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"customer_id\": \"1\",\n  \"items\": \"value\"\n}",
+							"raw": "{\n\"customer_id\": 1,\n\"items\": [\n{ \"product_id\": 1, \"quantity\": 2 }, { \"product_id\": 5, \"quantity\": 1, \"unit_price\": 39.9 }\n\n]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
