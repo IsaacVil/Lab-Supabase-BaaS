@@ -55,14 +55,14 @@ create table if not exists public.user_allowed_category (
     primary key (user_id, category_id)
 );
 --====================================RLS====================================
-alter table public.countries enable row level security;
-alter table public.categories enable row level security;
+alter table public.countries disable row level security;
+alter table public.categories disable row level security;
 alter table public.products enable row level security;
 alter table public.customers enable row level security;
 alter table public.invoices enable row level security;
 alter table public.invoice_lines enable row level security;
-alter table public.user_allowed_country enable row level security;
-alter table public.user_allowed_category enable row level security;
+alter table public.user_allowed_country disable row level security;
+alter table public.user_allowed_category disable row level security;
 
 --Politicas por categoria (products)
 
