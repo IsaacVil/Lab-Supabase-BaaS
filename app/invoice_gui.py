@@ -62,25 +62,25 @@ class SupabaseInvoiceGUI:
         
         ttk.Label(center_frame, text="Sistema de Facturación", font=("Arial", 16, "bold")).grid(row=0, column=0, columnspan=2, pady=20)
         
-        # URL Supabase
+        # URL Supabase - OCULTO COMPLETAMENTE
         ttk.Label(center_frame, text="Supabase URL:").grid(row=1, column=0, sticky="e", padx=5, pady=5)
-        self.url_entry = ttk.Entry(center_frame, width=50)
-        self.url_entry.grid(row=1, column=1, padx=5, pady=5)
-        self.url_entry.insert(0, os.getenv("SUPABASE_URL", ""))
+        self.url_label = ttk.Label(center_frame, text="●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●", 
+                                foreground="gray", relief="sunken", padding=5, width=50)
+        self.url_label.grid(row=1, column=1, padx=5, pady=5, sticky="w")
         
-        # Anon Key
+        # Anon Key - OCULTO COMPLETAMENTE
         ttk.Label(center_frame, text="Anon Key:").grid(row=2, column=0, sticky="e", padx=5, pady=5)
-        self.key_entry = ttk.Entry(center_frame, width=50, show="*")
-        self.key_entry.grid(row=2, column=1, padx=5, pady=5)
-        self.key_entry.insert(0, os.getenv("SUPABASE_ANON_KEY", ""))
+        self.key_label = ttk.Label(center_frame, text="●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●", 
+                                foreground="gray", relief="sunken", padding=5, width=50)
+        self.key_label.grid(row=2, column=1, padx=5, pady=5, sticky="w")
         
-        # Email
+        # Email - MANTENER COMO ENTRY (EDITABLE)
         ttk.Label(center_frame, text="Email:").grid(row=3, column=0, sticky="e", padx=5, pady=5)
         self.email_entry = ttk.Entry(center_frame, width=50)
         self.email_entry.grid(row=3, column=1, padx=5, pady=5)
         self.email_entry.insert(0, os.getenv("USER_EMAIL", ""))
         
-        # Password
+        # Password - MANTENER COMO ENTRY (EDITABLE)
         ttk.Label(center_frame, text="Password:").grid(row=4, column=0, sticky="e", padx=5, pady=5)
         self.password_entry = ttk.Entry(center_frame, width=50, show="*")
         self.password_entry.grid(row=4, column=1, padx=5, pady=5)
@@ -299,7 +299,6 @@ class SupabaseInvoiceGUI:
         
         ttk.Button(button_row1, text="🔄 Actualizar Información", command=self.update_user_info).pack(side=tk.LEFT, padx=(0, 5))
         ttk.Button(button_row1, text="🔍 Verificar Permisos", command=self.verify_permissions).pack(side=tk.LEFT, padx=(0, 5))
-        ttk.Button(button_row1, text="📊 Estadísticas", command=self.show_statistics).pack(side=tk.LEFT, padx=(0, 5))
         
         # Área de logs
         logs_frame = ttk.LabelFrame(main_admin_frame, text="Logs del Sistema")
@@ -499,19 +498,41 @@ Estado: ✅ Conectado y autenticado
         except Exception:
             self.line_total_label.config(text="$0.00", foreground="gray")
         
+
     def login(self):
         try:
-            url = self.url_entry.get().strip()
-            key = self.key_entry.get().strip()
+            # Obtener valores DIRECTAMENTE del archivo .env (NO de la GUI)
+            url = os.getenv("SUPABASE_URL", "").strip()
+            key = os.getenv("SUPABASE_ANON_KEY", "").strip()
+            
+            # Obtener email y password de la GUI
             email = self.email_entry.get().strip()
             password = self.password_entry.get().strip()
             
-            if not all([url, key, email, password]):
-                messagebox.showerror("Error", "Todos los campos son requeridos")
+            # Validar que todos los valores estén presentes
+            if not url:
+                messagebox.showerror("Error", "SUPABASE_URL no está configurado en el archivo .env")
+                self.log_message("Error: SUPABASE_URL no configurado")
+                return
+                
+            if not key:
+                messagebox.showerror("Error", "SUPABASE_ANON_KEY no está configurado en el archivo .env")
+                self.log_message("Error: SUPABASE_ANON_KEY no configurado")
+                return
+                
+            if not email:
+                messagebox.showerror("Error", "El email es requerido")
+                return
+                
+            if not password:
+                messagebox.showerror("Error", "El password es requerido")
                 return
                 
             self.status_label.config(text="Conectando...", foreground="orange")
             self.root.update()
+            
+            # Log de intento de conexión (SIN mostrar credenciales)
+            self.log_message("Intentando conectar a Supabase...")
             
             # Crear cliente Supabase
             self.supabase_client = create_client(url, key)
@@ -542,6 +563,7 @@ Estado: ✅ Conectado y autenticado
             error_msg = f"Error de conexión: {str(e)}"
             self.log_message(error_msg)
             messagebox.showerror("Error", error_msg)
+
             
     def load_initial_data(self):
         if not self.supabase_client:
