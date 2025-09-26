@@ -262,7 +262,6 @@ with check (
  )
 );
 
-<<<<<<< HEAD
 -- COUNTRIES (búsquedas por código)
 CREATE INDEX IF NOT EXISTS idx_countries_code ON public.countries(code);
 
@@ -306,9 +305,9 @@ CREATE INDEX IF NOT EXISTS idx_user_allowed_category_composite ON public.user_al
 CREATE INDEX IF NOT EXISTS idx_products_category_price ON public.products(category_id, unit_price);
 CREATE INDEX IF NOT EXISTS idx_invoices_customer_date ON public.invoices(customer_id, invoice_date);
 CREATE INDEX IF NOT EXISTS idx_invoice_lines_invoice_product ON public.invoice_lines(invoice_id, product_id);
-=======
 
-=======POBLADO=======
+
+-- =======POBLADO=======
 
 insert into public.countries (code, name) values
 ('CR', 'Costa Rica'),
@@ -317,34 +316,94 @@ insert into public.countries (code, name) values
 ('GB', 'United Kingdom'),
 ('DE', 'Germany'),
 ('FR', 'France'),
-('ES', 'Spain');
+('ES', 'Spain'),
+('IT', 'Italy'),
+('JP', 'Japan'),
+('AU', 'Australia'),
+('BR', 'Brazil'),
+('MX', 'Mexico'),
+('AR', 'Argentina'),
+('CL', 'Chile'),
+('CO', 'Colombia'),
+('PE', 'Peru'),
+('NL', 'Netherlands'),
+('SE', 'Sweden'),
+('NO', 'Norway'),
+('CH', 'Switzerland');
 
-
+-- Categories (20 categorías)
 insert into public.categories (name) values
 ('Electronics'),
 ('Furniture'),
 ('Beauty'),
 ('Food'),
-('Clothing');
+('Clothing'),
+('Sports'),
+('Books'),
+('Home & Garden'),
+('Automotive'),
+('Toys'),
+('Health'),
+('Music'),
+('Office Supplies'),
+('Pet Supplies'),
+('Jewelry'),
+('Tools'),
+('Art & Crafts'),
+('Baby Products'),
+('Travel'),
+('Gaming');
 
+-- Products (20 productos distribuidos en diferentes categorías)
 insert into public.products (name, category_id, unit_price) values
 ('Smartphone Model X', (select id from public.categories where name = 'Electronics'), 699.00),
 ('Laptop Pro 15"', (select id from public.categories where name = 'Electronics'), 1299.00),
+('Wireless Headphones', (select id from public.categories where name = 'Electronics'), 199.99),
+('4K Smart TV 55"', (select id from public.categories where name = 'Electronics'), 849.99),
+('Gaming Console Pro', (select id from public.categories where name = 'Gaming'), 499.99),
+
 ('Wooden Dining Table', (select id from public.categories where name = 'Furniture'), 499.00),
 ('Office Chair Ergo', (select id from public.categories where name = 'Furniture'), 149.50),
-('Hydrating Face Cream', (select id from public.categories where name = 'Beauty'), 29.99),
-('Organic Olive Oil 1L', (select id from public.categories where name = 'Food'), 12.75),
-('T-Shirt Classic', (select id from public.categories where name = 'Clothing'), 19.90),
-('Wireless Headphones', (select id from public.categories where name = 'Electronics'), 199.99)
-;
+('Modern Sofa 3-Seater', (select id from public.categories where name = 'Furniture'), 799.00),
+('Standing Desk Adjustable', (select id from public.categories where name = 'Furniture'), 329.99),
 
+('Hydrating Face Cream', (select id from public.categories where name = 'Beauty'), 29.99),
+('Anti-Aging Serum', (select id from public.categories where name = 'Beauty'), 45.00),
+('Professional Hair Dryer', (select id from public.categories where name = 'Beauty'), 89.99),
+
+('Organic Olive Oil 1L', (select id from public.categories where name = 'Food'), 12.75),
+('Premium Coffee Beans 500g', (select id from public.categories where name = 'Food'), 24.99),
+('Artisan Honey 250ml', (select id from public.categories where name = 'Food'), 18.50),
+
+('T-Shirt Classic', (select id from public.categories where name = 'Clothing'), 19.90),
+('Denim Jeans Premium', (select id from public.categories where name = 'Clothing'), 79.99),
+('Winter Jacket Waterproof', (select id from public.categories where name = 'Clothing'), 149.99),
+
+('Running Shoes Professional', (select id from public.categories where name = 'Sports'), 129.00),
+('Yoga Mat Premium', (select id from public.categories where name = 'Sports'), 39.99);
+
+-- Customers (20 clientes distribuidos en diferentes países)
 insert into public.customers (name, email, country_code) values
 ('Natalia Orozco', 'natalia.orozco@ejemplo.cr', 'CR'),
-('Isaac Villalobos', 'isaac.villalobos@ejemplo.us', 'US'),
-('Carlos Abarca', 'carlos.abarca@ejemplo.fr', 'FR'),
-('Dilan Hernandez', 'dilan.hernandezz@ejemplo.de', 'DE')
-;
->>>>>>> 5e9638d9f14635ab742cbf13e31047c70dd06b7c
+('Isaac Villalobos', 'isaac.villalobos@ejemplo.us', 'CR'),
+('Carlos Abarca', 'carlos.abarca@ejemplo.fr', 'CR'),
+('Dilan Hernandez', 'dilan.hernandez@ejemplo.de', 'CR'),
+('Maria Rodriguez', 'maria.rodriguez@ejemplo.es', 'ES'),
+('John Smith', 'john.smith@ejemplo.ca', 'CA'),
+('Sophie Martin', 'sophie.martin@ejemplo.fr', 'US'),
+('Hans Mueller', 'hans.mueller@ejemplo.de', 'DE'),
+('Emma Wilson', 'emma.wilson@ejemplo.gb', 'GB'),
+('Luca Rossi', 'luca.rossi@ejemplo.it', 'IT'),
+('Yuki Tanaka', 'yuki.tanaka@ejemplo.jp', 'JP'),
+('Sarah Johnson', 'sarah.johnson@ejemplo.au', 'AU'),
+('Pedro Silva', 'pedro.silva@ejemplo.br', 'BR'),
+('Ana Garcia', 'ana.garcia@ejemplo.mx', 'MX'),
+('Luis Fernandez', 'luis.fernandez@ejemplo.ar', 'AR'),
+('Carmen Lopez', 'carmen.lopez@ejemplo.cl', 'CL'),
+('Miguel Santos', 'miguel.santos@ejemplo.co', 'CO'),
+('Isabella Chen', 'isabella.chen@ejemplo.pe', 'PE'),
+('Erik Anderson', 'erik.anderson@ejemplo.se', 'SE'),
+('Lars Nielsen', 'lars.nielsen@ejemplo.no', 'NO');
 
 
 --====================================Función RPC====================================
