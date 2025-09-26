@@ -345,3 +345,146 @@ insert into public.customers (name, email, country_code) values
 ('Dilan Hernandez', 'dilan.hernandezz@ejemplo.de', 'DE')
 ;
 >>>>>>> 5e9638d9f14635ab742cbf13e31047c70dd06b7c
+
+
+--====================================Función RPC====================================
+
+create or replace function public.create_invoice(
+    customer_id bigint,
+    items jsonb
+)
+returns jsonb
+language plpgsql
+security invoker
+as $$
+declare
+    invoice_id bigint;
+    total numeric(14,2) := 0;
+    item jsonb;
+    product_id bigint;
+    quantity numeric(12,2);
+    unit_price numeric(12,2);
+    line_total numeric(14,2);
+    lines jsonb := '[]'::jsonb;
+    line_rec jsonb;
+    missing_products bigint[];
+begin
+    ----- VALIDACIONES ------
+    -- validar items
+    if items is null then
+        raise exception 'items no puede ser null';
+    end if;
+    if jsonb_typeof(items) <> 'array' or jsonb_array_length(items) = 0 then
+        raise exception 'items debe ser un array no vacío';
+    end if;
+
+    -- validar que el customer existe y es accesible
+    perform 1 from public.customers c where c.id = customer_id;
+    if not found then
+        raise exception 'customer % no existe o no es accesible', customer_id;
+    end if;
+
+    -- validar que todos los product_id del JSON existen y son accesibles
+    with distinct_pids as ( -- Se guardan los ids en el alias distinct_pids
+        select distinct (elem->>'product_id')::bigint as product_id -- distinct hace que si se repiten los ids, no se guarden los repetidos
+        from jsonb_array_elements(items) elem
+        where elem ? 'product_id' --toma los items que contengan product_id
+    )
+    select array_agg(d.product_id) --toma los d.product_id y los guarda en un array en la variable missing_products
+    into missing_products
+    from distinct_pids d
+    left join public.products p on p.id = d.product_id
+    where p.id is null; --Los p.id que tienen null se guardan (no hubo coincidencias)
+
+    if missing_products is not null then
+        raise exception 'los siguientes product_id no existen o no son accesibles: %', missing_products;
+    end if;
+
+    ----- PROCESAMIENTO ------
+    for item in select * from jsonb_array_elements(items) loop
+        begin
+            product_id := (item->>'product_id')::bigint;
+        exception when others then
+            raise exception 'product_id inválido o ausente en item: %', item;
+        end;
+
+        begin
+            quantity := (item->>'quantity')::numeric;
+        exception when others then -- Cubre cualquier error que ocurra en el begin
+            raise exception 'quantity inválida o ausente para product %', product_id;
+        end;
+
+        if quantity <= 0 then
+            raise exception 'quantity debe ser mayor que 0 para product %', product_id;
+        end if;
+
+        -- si trae unit_price lo usamos, si no lo tomamos de products
+        if (item ? 'unit_price') then
+            begin
+                unit_price := (item->>'unit_price')::numeric;
+            exception when others then
+                raise exception 'unit_price inválido para product %', product_id;
+            end;
+            if unit_price < 0 then
+                raise exception 'unit_price no puede ser negativo para product %', product_id;
+            end if;
+        else
+            select p.unit_price
+            into unit_price
+            from public.products p
+            where p.id = product_id;
+
+            if not found then
+                raise exception 'producto % no existe o no es accesible', product_id;
+            end if;
+        end if;
+
+        line_total := round(quantity * unit_price, 2); --redondea a dos decimales para la moneda
+        total := round(total + line_total, 2);
+
+        line_rec := jsonb_build_object( --se guarda el item
+            'product_id', product_id,
+            'quantity', quantity,
+            'unit_price', unit_price,
+            'line_total', line_total
+        );
+
+        lines := lines || jsonb_build_array(line_rec); -- se crea un json lines y se concatena el line_rec creado al final del json
+    end loop;
+
+    ----- INSERSIONES ------
+    -- insertar invoice
+    insert into public.invoices (customer_id, total_amount)
+    values (customer_id, total)
+    returning id into invoice_id; -- Devuelve el id de la factura creada y se guarda en invoice_id
+
+    -- insertar líneas
+    for item in select * from jsonb_array_elements(lines) loop
+        insert into public.invoice_lines (
+            invoice_id,
+            product_id,
+            quantity,
+            unit_price,
+            line_total
+        )
+        values (
+            invoice_id,
+            (item->>'product_id')::bigint,
+            (item->>'quantity')::numeric,
+            (item->>'unit_price')::numeric,
+            (item->>'line_total')::numeric
+        );
+    end loop;
+
+    return jsonb_build_object(
+        'invoice_id', invoice_id,
+        'customer_id', customer_id,
+        'total_amount', total,
+        'lines', lines
+    );
+exception
+    when others then
+        raise;
+end;
+$$;
+
