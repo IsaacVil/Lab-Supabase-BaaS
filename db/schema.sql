@@ -44,13 +44,13 @@ create table if not exists public.invoice_lines (
 );
 -- Tablas de Autorización (para RLS)
 create table if not exists public.user_allowed_country (
-    user_id uuid not null references auth.users(id),
+    user_id uuid not null,
     country_code text not null references public.countries(code),
     primary key (user_id, country_code)
 );
 
 create table if not exists public.user_allowed_category (
-    user_id uuid not null references auth.users(id),
+    user_id uuid not null,
     category_id bigint not null references public.categories(id),
     primary key (user_id, category_id)
 );
