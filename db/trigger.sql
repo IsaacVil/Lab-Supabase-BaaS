@@ -1,22 +1,30 @@
--- Función de Disparo para calcular el total de la línea de factura
-CREATE OR REPLACE FUNCTION calculate_invoice_line_total()
+-- Función del trigger ya que PostgreSQL 
+CREATE OR REPLACE FUNCTION validacion_invoice_line()
 RETURNS TRIGGER AS $$
 DECLARE
-    v_unit_price NUMERIC;
+    precioActual numeric(12,2);
 BEGIN
-    SELECT unit_price INTO v_unit_price
-    FROM products
+    -- Utilizamos NEW. que sirve para obtener el precio del producto según el id que está tratando de ser insertado
+    SELECT unit_price INTO precioActual
+    FROM public.products 
     WHERE id = NEW.product_id;
-
-    NEW.unit_price := v_unit_price;
-    NEW.line_total := NEW.quantity * NEW.unit_price;
-
+    
+    -- Validar que el unit_price sea igual al precio actual del producto
+    IF NEW.unit_price != precioActual THEN
+        RAISE EXCEPTION 'El precio unitario (%) no coincide con el precio actual del producto (%)', NEW.unit_price, precioActual;
+    END IF;
+    
+    -- Validar que line_total sea igual a quantity * unit_price
+    IF NEW.line_total != (NEW.quantity * NEW.unit_price) THEN
+        RAISE EXCEPTION 'El total de línea (%) no coincide con quantity (%) * unit_price (%)', NEW.line_total, NEW.quantity, NEW.unit_price;
+    END IF;
+    
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql; -- Esta parte nos permite utilizar instrucciones extras, como IF
 
--- Creación del Disparador
-CREATE TRIGGER trigger_invoice_validation
-BEFORE INSERT ON invoice_lines
-FOR EACH ROW
-EXECUTE FUNCTION calculate_invoice_line_total();
+-- Crear el trigger
+CREATE TRIGGER trigger_validacion_invoice_line
+    BEFORE INSERT OR UPDATE ON public.invoice_lines
+    FOR EACH ROW
+    EXECUTE FUNCTION validacion_invoice_line();
