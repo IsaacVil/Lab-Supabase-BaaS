@@ -119,3 +119,6 @@ tests/
 - La aplicación requiere conexión a internet para acceder a Supabase
 - Los usuarios deben estar registrados en la sección Auth de tu proyecto Supabase
 - Los permisos se gestionan a través de las tablas `user_allowed_country` y `user_allowed_category`
+
+## Video explicativo
+https://www.youtube.com/watch?v=fPlB8W3Ch0s
