@@ -78,21 +78,31 @@ class SupabaseInvoiceGUI:
         ttk.Label(center_frame, text="Email:").grid(row=3, column=0, sticky="e", padx=5, pady=5)
         self.email_entry = ttk.Entry(center_frame, width=50)
         self.email_entry.grid(row=3, column=1, padx=5, pady=5)
+        # Cargar email desde .env como valor por defecto, pero el usuario puede cambiarlo
         self.email_entry.insert(0, os.getenv("USER_EMAIL", ""))
         
         # Password - MANTENER COMO ENTRY (EDITABLE)
         ttk.Label(center_frame, text="Password:").grid(row=4, column=0, sticky="e", padx=5, pady=5)
         self.password_entry = ttk.Entry(center_frame, width=50, show="*")
         self.password_entry.grid(row=4, column=1, padx=5, pady=5)
+        # Cargar password desde .env como valor por defecto, pero el usuario puede cambiarlo
         self.password_entry.insert(0, os.getenv("USER_PASSWORD", ""))
         
         # Botón de login
         self.login_btn = ttk.Button(center_frame, text="🔑 Iniciar Sesión", command=self.login)
         self.login_btn.grid(row=5, column=0, columnspan=2, pady=20)
         
+        # Botones adicionales para gestión de credenciales
+        button_frame = ttk.Frame(center_frame)
+        button_frame.grid(row=6, column=0, columnspan=2, pady=10)
+        
+        ttk.Button(button_frame, text="🔄 Limpiar Campos", command=self.clear_credentials).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="💾 Guardar en .env", command=self.save_credentials_to_env).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="🚪 Cerrar Sesión", command=self.logout).pack(side=tk.LEFT, padx=5)
+        
         # Status
         self.status_label = ttk.Label(center_frame, text="No conectado", foreground="red")
-        self.status_label.grid(row=6, column=0, columnspan=2, pady=5)
+        self.status_label.grid(row=7, column=0, columnspan=2, pady=5)
         
     def create_products_tab(self):
         products_frame = ttk.Frame(self.notebook)
@@ -555,6 +565,11 @@ Estado: ✅ Conectado y autenticado
             # Actualizar información en admin tab
             self.update_user_info()
             self.log_message("Conexión establecida exitosamente")
+            
+            # Preguntar si quiere guardar las credenciales en .env (opcional)
+            if messagebox.askyesno("Guardar Credenciales", 
+                                   "¿Desea guardar estas credenciales en el archivo .env para futuras sesiones?"):
+                self.save_credentials_to_env()
             
             messagebox.showinfo("Éxito", "Conexión exitosa!")
             
@@ -1055,6 +1070,107 @@ Categorías autorizadas: {', '.join(categories_allowed) if categories_allowed el
             
         except Exception as e:
             messagebox.showerror("Error", f"Error creando factura: {str(e)}")
+            
+    def clear_credentials(self):
+        """Limpiar los campos de email y password"""
+        self.email_entry.delete(0, tk.END)
+        self.password_entry.delete(0, tk.END)
+        self.log_message("Campos de credenciales limpiados")
+        
+    def save_credentials_to_env(self):
+        """Guardar las credenciales actuales en el archivo .env"""
+        try:
+            email = self.email_entry.get().strip()
+            password = self.password_entry.get().strip()
+            
+            if not email or not password:
+                messagebox.showwarning("Advertencia", "Por favor complete ambos campos antes de guardar")
+                return
+            
+            # Leer el archivo .env actual
+            env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+            
+            if os.path.exists(env_path):
+                with open(env_path, 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                
+                # Actualizar las líneas correspondientes
+                updated_lines = []
+                email_updated = False
+                password_updated = False
+                
+                for line in lines:
+                    if line.startswith('USER_EMAIL='):
+                        updated_lines.append(f'USER_EMAIL={email}\n')
+                        email_updated = True
+                    elif line.startswith('USER_PASSWORD='):
+                        updated_lines.append(f'USER_PASSWORD={password}\n')
+                        password_updated = True
+                    else:
+                        updated_lines.append(line)
+                
+                # Si no existían las líneas, agregarlas al final
+                if not email_updated:
+                    updated_lines.append(f'USER_EMAIL={email}\n')
+                if not password_updated:
+                    updated_lines.append(f'USER_PASSWORD={password}\n')
+                
+                # Escribir el archivo actualizado
+                with open(env_path, 'w', encoding='utf-8') as f:
+                    f.writelines(updated_lines)
+                
+                self.log_message("Credenciales guardadas en archivo .env")
+                messagebox.showinfo("Éxito", "Credenciales guardadas exitosamente en el archivo .env")
+                
+            else:
+                messagebox.showerror("Error", "No se encontró el archivo .env")
+                
+        except Exception as e:
+            error_msg = f"Error guardando credenciales: {str(e)}"
+            self.log_message(error_msg)
+            messagebox.showerror("Error", error_msg)
+            
+    def logout(self):
+        """Cerrar la sesión actual y permitir cambiar de usuario"""
+        try:
+            if self.supabase_client and self.user_info:
+                # Cerrar sesión en Supabase
+                self.supabase_client.auth.sign_out()
+                self.log_message(f"Sesión cerrada para: {self.user_info.email}")
+            
+            # Limpiar variables de sesión
+            self.supabase_client = None
+            self.user_info = None
+            
+            # Limpiar datos
+            self.products_data = []
+            self.customers_data = []
+            self.categories_data = []
+            self.countries_data = []
+            self.invoice_lines = []
+            
+            # Limpiar todas las tablas/treeviews
+            for tree in [self.products_tree, self.customers_tree, self.invoices_tree, 
+                        self.invoice_lines_tree, self.temp_lines_tree]:
+                for item in tree.get_children():
+                    tree.delete(item)
+            
+            # Limpiar combos
+            for combo in [self.category_filter, self.country_filter, self.customer_filter,
+                         self.invoice_customer, self.line_product]:
+                combo['values'] = []
+                combo.set("")
+            
+            # Actualizar estado
+            self.status_label.config(text="Sesión cerrada - Puede iniciar con otro usuario", foreground="orange")
+            self.log_message("Sesión cerrada exitosamente")
+            
+            messagebox.showinfo("Sesión Cerrada", "Sesión cerrada exitosamente. Puede iniciar sesión con otro usuario.")
+            
+        except Exception as e:
+            error_msg = f"Error cerrando sesión: {str(e)}"
+            self.log_message(error_msg)
+            messagebox.showerror("Error", error_msg)
             
     def run(self):
         self.root.mainloop()
