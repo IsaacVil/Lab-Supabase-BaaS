@@ -4,7 +4,7 @@
 - Isaac Villalobos Bonilla 2024124285
 - Dilan Hernandez 2024063414
 - Natalia Orozco Delgado 2024099161
-- Carlos Abarca
+- Carlos Abarca 2024138701
 
 ## Backend de Ventas con Supabase + FE Cliente en Python
 Backend de ventas usando Supabase (PostgreSQL + PostgREST + Auth) que implementa:
