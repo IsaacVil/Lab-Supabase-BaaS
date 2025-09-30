@@ -3,7 +3,7 @@
 ## Integrantes
 - Isaac Villalobos Bonilla 2024124285
 - Dilan Hernandez 2024063414
-- Natalia Orozco
+- Natalia Orozco Delgado 2024099161
 - Carlos Abarca
 
 ## Backend de Ventas con Supabase + FE Cliente en Python
