@@ -2,7 +2,7 @@
 
 ## Integrantes
 - Isaac Villalobos Bonilla 2024124285
-- Dilan Hernandez 
+- Dilan Hernandez 2024063414
 - Natalia Orozco
 - Carlos Abarca
 
